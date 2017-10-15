@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>Epos.Blog.LaTeX</AssemblyName>
-    <RootNamespace>Epos.Blog.LaTeX</RootNamespace>
+    <AssemblyName>Epos.WebApi.LaTeX</AssemblyName>
+    <RootNamespace>Epos.WebApi.LaTeX</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

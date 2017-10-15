@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Epos.Blog.LaTeX.Services
+namespace Epos.WebApi.LaTeX.Services
 {
     public class LaTeXService : ILaTeXService
     {

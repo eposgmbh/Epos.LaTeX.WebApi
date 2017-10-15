@@ -1,4 +1,4 @@
-﻿namespace Epos.Blog.LaTeX.Services
+﻿namespace Epos.WebApi.LaTeX.Services
 {
     public class LaTeXServiceRequest
     {

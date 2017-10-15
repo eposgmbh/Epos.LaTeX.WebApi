@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Epos.Blog.LaTeX
+namespace Epos.WebApi.LaTeX
 {
     public class Program
     {
