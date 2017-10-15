@@ -15,3 +15,15 @@ POST raw JSON (application/json) body to http://[host]:81/api/latex
     TextColor: "777777" // HTML "#"-Format
 }
 ```
+
+You get back:
+
+```
+{
+    "isSuccessful": true,
+    "errorMessage": null,
+    "pngImageData": "iVBORw0KGgoAAAANSUhEUgAABZ..."
+}
+```
+
+`pngImageData` is a Base64-encoded PMG-Image. [Json.NET](https://www.newtonsoft.com/json) deserializes this as a `byte[]` array.
