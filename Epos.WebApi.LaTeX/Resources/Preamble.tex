@@ -1,0 +1,20 @@
+﻿\documentclass[preview, varwidth=true]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{charter}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{xtab}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{amsmath}
+\setlength{\tabcolsep}{6pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\begin{document}
+\definecolor{fontcolor}{HTML}{##COLOR##}
+\color{fontcolor}
+\nopagecolor
+\newcommand{\boxtr}[1]{%
+\ensuremath{%
+\setlength{\tabcolsep}{1pt}\scriptsize
+\mbox{\begin{tabular}{@{}c|@{}}\hline\(#1\)\end{tabular}}}}
+\begin{align*}
