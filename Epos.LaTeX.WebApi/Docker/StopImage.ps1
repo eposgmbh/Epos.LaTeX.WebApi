@@ -1,1 +1,1 @@
-﻿docker rm -f blog-latex
+﻿docker rm -f latex-webapi
