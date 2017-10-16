@@ -1,8 +1,8 @@
-﻿using Epos.WebApi.LaTeX.Services;
+﻿using Epos.LaTeX.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Epos.WebApi.LaTeX
+namespace Epos.LaTeX.WebApi
 {
     public class Startup
     {

@@ -1,9 +1,9 @@
 ﻿using System;
-using Epos.WebApi.LaTeX.Services;
+using Epos.LaTeX.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Epos.WebApi.LaTeX.Controllers
+namespace Epos.LaTeX.WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class LaTeXController : Controller

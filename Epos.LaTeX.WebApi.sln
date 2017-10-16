@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epos.WebApi.LaTeX", "Epos.WebApi.LaTeX\Epos.WebApi.LaTeX.csproj", "{31D95930-1984-49E3-922F-401E5B03B281}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epos.LaTeX.WebApi", "Epos.LaTeX.WebApi\Epos.LaTeX.WebApi.csproj", "{31D95930-1984-49E3-922F-401E5B03B281}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60A817D3-5BD2-4CE7-8D01-D0EB3AE65C33}"
 	ProjectSection(SolutionItems) = preProject

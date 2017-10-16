@@ -1,4 +1,4 @@
-namespace Epos.WebApi.LaTeX.Services
+namespace Epos.LaTeX.WebApi.Services
 {
     public interface ILaTeXService
     {
