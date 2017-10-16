@@ -7,12 +7,12 @@
 
 ASP.NET Core Web API to convert LaTeX to a PNG Image
 
-POST raw JSON (application/json) body to http://[host]:81/api/latex
+POST raw JSON (application/json) body to `http://[host]:81/api/latex`.
 
 ```javascript
 {
-    LaTeX: "a^2 + b^2 = c^2",
-    TextColor: "777777" // HTML "#"-Format
+    laTeX: "a^2 + b^2 = c^2",
+    textColor: "777777" // HTML "#"-Format
 }
 ```
 
@@ -26,4 +26,4 @@ You get back:
 }
 ```
 
-`pngImageData` is a Base64-encoded PMG-Image. [Json.NET](https://www.newtonsoft.com/json) deserializes this as a `byte[]` array.
+`pngImageData` is a Base64-encoded PMG-Image. [Json.NET](https://www.newtonsoft.com/json) deserializes this into a `byte[]` array.

@@ -1,4 +1,10 @@
-FROM eposgmbh/aspnetcore-texlive:2.0
+FROM microsoft/aspnetcore:2.0
+RUN \
+    apt-get update && \
+    apt-get -y install texlive && \
+    apt-get -y install texlive-lang-german && \
+    apt-get -y install texlive-latex-extra && \
+    apt-get -y install imagemagick
 WORKDIR /app
 COPY . .
 WORKDIR Publish
