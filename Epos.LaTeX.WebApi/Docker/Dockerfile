@@ -9,4 +9,4 @@ WORKDIR /app
 COPY . .
 WORKDIR Publish
 EXPOSE 81
-ENTRYPOINT ["dotnet", "Epos.Blog.LaTeX.dll"]
+ENTRYPOINT ["dotnet", "Epos.LaTeX.WebApi.dll"]
