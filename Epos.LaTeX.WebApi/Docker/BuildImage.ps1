@@ -1,10 +1,10 @@
-﻿cd $PSScriptRoot
+﻿Set-Location $PSScriptRoot
 Remove-Item -Recurse -Force Publish
 
-cd ..
+Set-Location ..
 dotnet publish --configuration Release --output Docker/Publish
 
-cd Docker
+Set-Location Docker
 
-docker rmi -f eposgmbh/latex-webapi
-docker build . -t eposgmbh/latex-webapi
+docker rmi --force eposgmbh/latex-webapi
+docker build --tag eposgmbh/latex-webapi .

@@ -9,7 +9,7 @@ namespace Epos.LaTeX.WebApi.Services
 {
     public class LaTeXService : ILaTeXService
     {
-        private static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), "Epos.Blog.LaTeX");
+        private static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), "Epos.LaTeX.WebApi");
         private const int PngDensity = 300;
 
         private readonly ILogger<LaTeXService> myLogger;
@@ -37,7 +37,7 @@ namespace Epos.LaTeX.WebApi.Services
             string theLaTexFilename = theLaTexFilenameWithoutExtension + ".tex";
 
             Stream theStream = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("Epos.Blog.LaTeX.Resources.Preamble.tex");
+                .GetManifestResourceStream("Epos.LaTeX.WebApi.Resources.Preamble.tex");
             StreamReader theStreamReader = new StreamReader(theStream);
             string thePreamble = theStreamReader.ReadToEnd();
             theStreamReader.Close();
@@ -45,7 +45,7 @@ namespace Epos.LaTeX.WebApi.Services
             thePreamble = thePreamble.Replace("##COLOR##", request.TextColor);
 
             theStream = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("Epos.Blog.LaTeX.Resources.End.tex");
+                .GetManifestResourceStream("Epos.LaTeX.WebApi.Resources.End.tex");
             theStreamReader = new StreamReader(theStream);
             string theEnd = theStreamReader.ReadToEnd();
             theStreamReader.Close();

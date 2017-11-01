@@ -1,9 +1,10 @@
 # Epos.LaTeX.WebApi
 
 ![Build Status](https://eposgmbh.visualstudio.com/_apis/public/build/definitions/f8efcc28-0cef-4500-a9e4-7b6d4c7f3c3d/6/badge)
+[![Dockerhub](https://img.shields.io/docker/pulls/eposgmbh/latex-webapi.svg)](https://hub.docker.com/r/eposgmbh/latex-webapi/)
 
-(Build and deployment to [Dockerhub](https://hub.docker.com/r/eposgmbh/latex-webapi/) is automated with
-[Visual Studio Team Services](https://www.visualstudio.com/team-services).)
+Build and Release deployment to [Dockerhub](https://hub.docker.com/r/eposgmbh/latex-webapi/) is automated with
+[Visual Studio Team Services](https://www.visualstudio.com/team-services). Try it, it's free and powerful.
 
 ## Description
 
@@ -11,12 +12,15 @@
 
 ## Installation
 
-Pull the latest Docker image and run it:
+Pull the latest Docker image (Linux) and run it:
 
 ```docker
 docker pull eposgmbh/latex-webapi:latest
-docker run -d --rm -p 81:81 --name latex-webapi eposgmbh/latex-webapi
+docker run --detach --rm --publish 81:81 --name latex-webapi eposgmbh/latex-webapi:latest
 ```
+
+> **Hint:** The Web API can only be made to work on Linux, because it needs TeX Live and ImageMagick installed. The
+> simplest way is to run the Linux Docker image, see above.
 
 ## Usage
 
@@ -39,7 +43,8 @@ You get back:
 }
 ```
 
-`pngImageData` is a Base64-encoded PMG-Image. [Json.NET](https://www.newtonsoft.com/json) deserializes this into a `byte[]` array.
+`pngImageData` is a Base64-encoded PMG-Image. [Json.NET](https://www.newtonsoft.com/json) deserializes this into a
+`byte[]` array.
 
 ## Contributing
 

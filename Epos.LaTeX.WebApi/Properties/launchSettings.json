@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Epos.Blog.Latex": {
+    "Epos.Latex.WebApi": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

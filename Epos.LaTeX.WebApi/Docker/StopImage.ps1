@@ -1,1 +1,1 @@
-﻿docker rm -f latex-webapi
+﻿docker rm --force latex-webapi
