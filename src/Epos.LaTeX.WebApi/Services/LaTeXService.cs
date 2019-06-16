@@ -1,15 +1,16 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+
 using Microsoft.Extensions.Logging;
 
 namespace Epos.LaTeX.WebApi.Services
 {
     public class LaTeXService : ILaTeXService
     {
-        private static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), "Epos.LaTeX.WebApi");
+        private static string WorkingDirectory => Path.Combine(Path.GetTempPath(), "Epos.LaTeX.WebApi");
         private const int PngDensity = 300;
 
         private readonly ILogger<LaTeXService> myLogger;
@@ -23,9 +24,9 @@ namespace Epos.LaTeX.WebApi.Services
                 throw new ArgumentNullException(nameof(request));
             }
 
-            myLogger.LogDebug(request.LaTeX);
-            myLogger.LogDebug(request.TextColor);
-            myLogger.LogDebug(string.Empty);
+            myLogger.LogInformation($"LaTeX: {request.LaTeX}");
+            myLogger.LogInformation($"Color: {request.TextColor}");
+            myLogger.LogInformation(string.Empty);
 
             var theStopwatch = Stopwatch.StartNew();
 
@@ -33,16 +34,17 @@ namespace Epos.LaTeX.WebApi.Services
                 Directory.CreateDirectory(WorkingDirectory);
             }
 
-            string theLaTexFilenameWithoutExtension = Path.Combine(WorkingDirectory, Guid.NewGuid().ToString("N"));
-            string theLaTexFilename = theLaTexFilenameWithoutExtension + ".tex";
+            string theLaTeXFilenameWithoutExtension = $"{Path.Combine(WorkingDirectory, Guid.NewGuid().ToString("N"))}";
+            string theLaTexFilename = $"{theLaTeXFilenameWithoutExtension}.tex";
 
             Stream theStream = Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("Epos.LaTeX.WebApi.Resources.Preamble.tex");
-            StreamReader theStreamReader = new StreamReader(theStream);
+            var theStreamReader = new StreamReader(theStream);
             string thePreamble = theStreamReader.ReadToEnd();
             theStreamReader.Close();
 
-            thePreamble = thePreamble.Replace("##COLOR##", request.TextColor);
+            thePreamble = thePreamble.Replace("##FONTCOLOR##", request.TextColor);
+            thePreamble = thePreamble.Replace("##PAGECOLOR##", request.PageColor);
 
             theStream = Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("Epos.LaTeX.WebApi.Resources.End.tex");
@@ -50,13 +52,13 @@ namespace Epos.LaTeX.WebApi.Services
             string theEnd = theStreamReader.ReadToEnd();
             theStreamReader.Close();
 
-            var theContents = thePreamble + request.LaTeX.Trim() + Environment.NewLine + theEnd;
-            myLogger.LogDebug(theContents);
-            myLogger.LogDebug(string.Empty);
+            string theContents = thePreamble + request.LaTeX.Trim() + Environment.NewLine + theEnd;
+            myLogger.LogInformation($"Input (pdflatex):{Environment.NewLine}{theContents}");
+            myLogger.LogInformation(string.Empty);
 
-            File.WriteAllText(theLaTexFilename, theContents);
+            File.WriteAllText(theLaTexFilename, theContents, Encoding.UTF8);
 
-            var theProcess = new Process {
+            using var thePdflatexProcess = new Process {
                 StartInfo = {
                     UseShellExecute = false,
                     CreateNoWindow = true,
@@ -67,13 +69,13 @@ namespace Epos.LaTeX.WebApi.Services
                     Arguments = theLaTexFilename + " -no-c-style-errors -enable-installer -halt-on-error"
                 }
             };
-            theProcess.Start();
+            thePdflatexProcess.Start();
 
-            string theOutputString = theProcess.StandardOutput.ReadToEnd();
-            myLogger.LogDebug(theOutputString);
-            myLogger.LogDebug(string.Empty);
+            string theOutputString = thePdflatexProcess.StandardOutput.ReadToEnd();
+            thePdflatexProcess.WaitForExit();
 
-            theProcess.WaitForExit();
+            myLogger.LogInformation($"Output (pdflatex):{Environment.NewLine}{theOutputString}");
+            myLogger.LogInformation(string.Empty);
 
             int theFirstErrorIndex = theOutputString.IndexOf('!');
             string theErrorMessage;
@@ -81,14 +83,13 @@ namespace Epos.LaTeX.WebApi.Services
                 theErrorMessage = theOutputString.Substring(theFirstErrorIndex + 2);
                 theFirstErrorIndex = theErrorMessage.IndexOf('!');
                 theErrorMessage = theErrorMessage.Substring(0, theFirstErrorIndex);
-                theErrorMessage = theErrorMessage.Replace(Environment.NewLine, " ");
+                // theErrorMessage = theErrorMessage.Replace(Environment.NewLine, " ");
             } else {
-                string thePdfFilepath = Path.Combine(
-                    WorkingDirectory, theLaTexFilenameWithoutExtension + ".pdf"
-                );
+                string thePdfFilename = $"{theLaTeXFilenameWithoutExtension}.pdf";
+                string thePngFilename = $"{theLaTeXFilenameWithoutExtension}.png";
 
-                if (File.Exists(thePdfFilepath)) {
-                    theProcess = new Process {
+                if (File.Exists(thePdfFilename)) {
+                    using var theConvertProcess = new Process {
                         StartInfo = {
                             UseShellExecute = false,
                             CreateNoWindow = true,
@@ -97,20 +98,16 @@ namespace Epos.LaTeX.WebApi.Services
                             FileName = "convert",
                             WorkingDirectory = WorkingDirectory,
                             Arguments =
-                                $"-density {PngDensity} {theLaTexFilenameWithoutExtension}.pdf {theLaTexFilenameWithoutExtension}.png"
+                                $"-density {PngDensity} {thePdfFilename} {thePngFilename}"
                         }
                     };
-                    theProcess.Start();
-                    theProcess.WaitForExit();
+                    theConvertProcess.Start();
+                    theConvertProcess.WaitForExit();
 
-                    string thePngFilepath = Path.Combine(
-                        WorkingDirectory, theLaTexFilenameWithoutExtension + ".png"
-                    );
-
-                    if (File.Exists(thePngFilepath)) {
+                    if (File.Exists(thePngFilename)) {
                         return new LaTeXServiceResponse {
                             IsSuccessful = true,
-                            PngImageData = File.ReadAllBytes(thePngFilepath),
+                            PngImageData = File.ReadAllBytes(thePngFilename),
                             DurationMilliseconds = theStopwatch.ElapsedMilliseconds
                         };
                     }

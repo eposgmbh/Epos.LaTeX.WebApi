@@ -1,4 +1,4 @@
-﻿\documentclass[preview, varwidth=true]{standalone}
+\documentclass[preview, varwidth=true]{standalone}
 \usepackage[utf8]{inputenc}
 \usepackage{charter}
 \usepackage[T1]{fontenc}
@@ -10,7 +10,9 @@
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt}
 \begin{document}
-\definecolor{fontcolor}{HTML}{##COLOR##}
+\definecolor{fontcolor}{HTML}{##FONTCOLOR##}
+\definecolor{pagecolor}{HTML}{##PAGECOLOR##}
+\pagecolor{pagecolor}
 \color{fontcolor}
 \nopagecolor
 \newcommand{\boxtr}[1]{%

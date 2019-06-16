@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AssemblyName>Epos.LaTeX.WebApi</AssemblyName>
+    <RootNamespace>Epos.LaTeX.WebApi</RootNamespace>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
+    <PackageReference Include="SixLabors.Shapes" Version="1.0.0-beta0008" />
+    <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0008" />
+  </ItemGroup>
+  
+</Project>

@@ -1,17 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28902.138
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epos.LaTeX.WebApi", "Epos.LaTeX.WebApi\Epos.LaTeX.WebApi.csproj", "{31D95930-1984-49E3-922F-401E5B03B281}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60A817D3-5BD2-4CE7-8D01-D0EB3AE65C33}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		LICENSE = LICENSE
-		Postman = Postman
-		README.md = README.md
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Epos.LaTeX.CmdLine", "Epos.LaTeX.CmdLine\Epos.LaTeX.CmdLine.csproj", "{012CBD92-EBAE-417D-8EB6-5FB70CFAE1EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +17,10 @@ Global
 		{31D95930-1984-49E3-922F-401E5B03B281}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31D95930-1984-49E3-922F-401E5B03B281}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31D95930-1984-49E3-922F-401E5B03B281}.Release|Any CPU.Build.0 = Release|Any CPU
+		{012CBD92-EBAE-417D-8EB6-5FB70CFAE1EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{012CBD92-EBAE-417D-8EB6-5FB70CFAE1EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{012CBD92-EBAE-417D-8EB6-5FB70CFAE1EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{012CBD92-EBAE-417D-8EB6-5FB70CFAE1EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

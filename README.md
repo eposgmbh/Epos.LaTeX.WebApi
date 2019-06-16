@@ -1,10 +1,6 @@
 # Epos.LaTeX.WebApi
 
-![Build Status](https://eposgmbh.visualstudio.com/_apis/public/build/definitions/f8efcc28-0cef-4500-a9e4-7b6d4c7f3c3d/6/badge)
-[![Dockerhub](https://img.shields.io/docker/pulls/eposgmbh/latex-webapi.svg)](https://hub.docker.com/r/eposgmbh/latex-webapi/)
-
-Build and Release deployment to [Dockerhub](https://hub.docker.com/r/eposgmbh/latex-webapi/) is automated with
-[Visual Studio Team Services](https://www.visualstudio.com/team-services). Try it, it's free and powerful.
+[![Dockerhub](https://img.shields.io/docker/pulls/eposgmbh/latex-service.svg)](https://hub.docker.com/r/eposgmbh/latex-service/)
 
 ## Description
 
@@ -15,8 +11,8 @@ Build and Release deployment to [Dockerhub](https://hub.docker.com/r/eposgmbh/la
 Pull the latest Docker image (Linux) and run it:
 
 ```docker
-docker pull eposgmbh/latex-webapi:latest
-docker run --detach --rm --publish 81:81 --name latex-webapi eposgmbh/latex-webapi:latest
+docker pull eposgmbh/latex-service:latest
+docker run --detach --rm --publish 80:80 --name latex-service eposgmbh/latex-service:latest
 ```
 
 > **Hint:** The Web API can only be made to work on Linux, because it needs TeX Live and ImageMagick installed. The
@@ -24,27 +20,17 @@ docker run --detach --rm --publish 81:81 --name latex-webapi eposgmbh/latex-weba
 
 ## Usage
 
-POST raw JSON (application/json) body to `http://[host]:81/api/latex`.
+Convert raw JSON to BASE64 (see https://www.base64encode.org/) and send a GET request to `http://[host]:80/api/latex/{BASE64}`.
 
 ```javascript
 {
-    laTeX: "a^2 + b^2 = c^2",
-    textColor: "777777" // HTML "#"-Format
+    "laTeX": "a^2 + b^2 = c^2",
+    "textColor": "777777", // HTML "#"-Format
+    "pageColor": "111111"
 }
 ```
 
-You get back:
-
-```
-{
-    "isSuccessful": true,
-    "errorMessage": null,
-    "pngImageData": "iVBORw0KGgoAAAANSUhEUgAABZ..."
-}
-```
-
-`pngImageData` is a Base64-encoded PMG-Image. [Json.NET](https://www.newtonsoft.com/json) deserializes this into a
-`byte[]` array.
+You get back a PNG image.
 
 ## Contributing
 
