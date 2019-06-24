@@ -8,6 +8,7 @@ using DalSoft.RestClient;
 
 using Epos.CmdLine;
 using Epos.CmdLine.Helpers;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Epos.LaTeX.CmdLine
 {
@@ -51,9 +52,9 @@ namespace Epos.LaTeX.CmdLine
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
             );
 
-            string theBase64Json = Convert.ToBase64String(Encoding.UTF8.GetBytes(theJson));
+            string theBase64UrlJson = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(theJson));
 
-            byte[] theBytes = theClient.GetByteArrayAsync($"{options.WebApiUrl}/{theBase64Json}").Result;
+            byte[] theBytes = theClient.GetByteArrayAsync($"{options.WebApiUrl}/{theBase64UrlJson}").Result;
 
             string thePngFilename = Path.GetTempFileName() + ".png";
             File.WriteAllBytes(thePngFilename, theBytes);

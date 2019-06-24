@@ -22,5 +22,6 @@ WORKDIR /svc
 COPY --from=build-env /build/dist ./
 
 EXPOSE 80
+ENV PORT=80
 
 ENTRYPOINT ["dotnet", "Epos.LaTeX.WebApi.dll"]

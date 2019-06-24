@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using Epos.LaTeX.WebApi.Services;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 using SixLabors.Fonts;
@@ -29,11 +30,11 @@ namespace Epos.LaTeX.WebApi.Controllers
         }
 
         // GET api/latex/{jsonBase64}
-        [HttpGet("{jsonBase64}")]
+        [HttpGet("{jsonBase64Url}")]
         [ResponseCache(Duration = 31536000)]
-        public IActionResult Get(string jsonBase64) {
+        public IActionResult Get(string jsonBase64Url) {
             try {
-                byte[] theBytes = Convert.FromBase64String(jsonBase64);
+                byte[] theBytes = WebEncoders.Base64UrlDecode(jsonBase64Url);
                 string theJson = Encoding.UTF8.GetString(theBytes);
                 LaTeXServiceRequest theRequest = JsonSerializer.Parse<LaTeXServiceRequest>(
                     theJson, new JsonSerializerOptions {
@@ -54,7 +55,7 @@ namespace Epos.LaTeX.WebApi.Controllers
         }
 
         private byte[] CreateImageFromMessage(string message) {
-            using var theImage = new Image<Rgba32>(1500, 500);
+            using var theImage = new Image<Rgba32>(1000, 500);
 
             // foreach (var theInstalledFont in SystemFonts.Collection.Families) {
             //     Console.WriteLine(theInstalledFont.Name);
@@ -64,7 +65,7 @@ namespace Epos.LaTeX.WebApi.Controllers
 
             var theTextGraphicsOptions = new TextGraphicsOptions(true) {
                 // draw the text along the path wrapping at the end of the line
-                WrapTextWidth = 1500
+                WrapTextWidth = 1000
             };
 
             // lets generate the text as a set of vectors drawn along the path
