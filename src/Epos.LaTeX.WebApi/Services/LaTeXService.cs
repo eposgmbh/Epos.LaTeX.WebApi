@@ -24,9 +24,10 @@ namespace Epos.LaTeX.WebApi.Services
                 throw new ArgumentNullException(nameof(request));
             }
 
-            myLogger.LogInformation($"LaTeX: {request.LaTeX}");
-            myLogger.LogInformation($"Color: {request.TextColor}");
-            myLogger.LogInformation(string.Empty);
+            myLogger.LogWarning($"LaTeX: {request.LaTeX}");
+            myLogger.LogWarning($"Text color: {request.TextColor}");
+            myLogger.LogWarning($"Page color: {request.PageColor}");
+            myLogger.LogWarning(string.Empty);
 
             var theStopwatch = Stopwatch.StartNew();
 
@@ -53,8 +54,8 @@ namespace Epos.LaTeX.WebApi.Services
             theStreamReader.Close();
 
             string theContents = thePreamble + request.LaTeX.Trim() + Environment.NewLine + theEnd;
-            myLogger.LogInformation($"Input (pdflatex):{Environment.NewLine}{theContents}");
-            myLogger.LogInformation(string.Empty);
+            myLogger.LogWarning($"Input (pdflatex):{Environment.NewLine}{theContents}");
+            myLogger.LogWarning(string.Empty);
 
             File.WriteAllText(theLaTexFilename, theContents, Encoding.UTF8);
 
@@ -74,8 +75,8 @@ namespace Epos.LaTeX.WebApi.Services
             string theOutputString = thePdflatexProcess.StandardOutput.ReadToEnd();
             thePdflatexProcess.WaitForExit();
 
-            myLogger.LogInformation($"Output (pdflatex):{Environment.NewLine}{theOutputString}");
-            myLogger.LogInformation(string.Empty);
+            myLogger.LogWarning($"Output (pdflatex):{Environment.NewLine}{theOutputString}");
+            myLogger.LogWarning(string.Empty);
 
             int theFirstErrorIndex = theOutputString.IndexOf('!');
             string theErrorMessage;
@@ -83,7 +84,6 @@ namespace Epos.LaTeX.WebApi.Services
                 theErrorMessage = theOutputString.Substring(theFirstErrorIndex + 2);
                 theFirstErrorIndex = theErrorMessage.IndexOf('!');
                 theErrorMessage = theErrorMessage.Substring(0, theFirstErrorIndex);
-                // theErrorMessage = theErrorMessage.Replace(Environment.NewLine, " ");
             } else {
                 string thePdfFilename = $"{theLaTeXFilenameWithoutExtension}.pdf";
                 string thePngFilename = $"{theLaTeXFilenameWithoutExtension}.png";
@@ -98,7 +98,7 @@ namespace Epos.LaTeX.WebApi.Services
                             FileName = "convert",
                             WorkingDirectory = WorkingDirectory,
                             Arguments =
-                                $"-density {PngDensity} {thePdfFilename} {thePngFilename}"
+                                $"-density {PngDensity} -chop 0x30 {thePdfFilename} {thePngFilename}"
                         }
                     };
                     theConvertProcess.Start();
@@ -121,7 +121,8 @@ namespace Epos.LaTeX.WebApi.Services
             return new LaTeXServiceResponse {
                 IsSuccessful = false,
                 ErrorMessage = theErrorMessage,
-                DurationMilliseconds = theStopwatch.ElapsedMilliseconds };
+                DurationMilliseconds = theStopwatch.ElapsedMilliseconds
+            };
         }
     }
 }

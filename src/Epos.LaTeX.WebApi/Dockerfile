@@ -16,6 +16,7 @@ RUN \
     apt-get -y install texlive=2018.20190227-2 && \
     apt-get -y install texlive-lang-german=2018.20190227-2 && \
     apt-get -y install texlive-latex-extra=2018.20190227-2 && \
+    apt-get -y install texlive-fonts-extra=2018.20190227-2 && \
     apt-get -y install imagemagick=8:6.9.10.23+dfsg-2.1
 
 WORKDIR /svc

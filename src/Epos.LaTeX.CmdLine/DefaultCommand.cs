@@ -3,11 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json.Serialization;
-using DalSoft.RestClient;
+using System.Text.Json;
 
 using Epos.CmdLine;
-using Epos.CmdLine.Helpers;
+
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Epos.LaTeX.CmdLine
@@ -24,7 +23,13 @@ namespace Epos.LaTeX.CmdLine
                     LongName = "web-api-url",
                     DefaultValue =
                         Environment.GetEnvironmentVariable("LATEX_SERVICE_WEB_API_URL") ??
-                        "http://localhost/api/latex"
+                        "http://localhost:8000/api/latex"
+                },
+                new CmdLineOption<string>(
+                    'c', "Sets the text color."
+                ) {
+                    LongName = "text-color",
+                    DefaultValue = "FFFFFF"
                 }
             },
             CmdLineFunc = Execute
@@ -33,21 +38,28 @@ namespace Epos.LaTeX.CmdLine
         public class Options
         {
             [CmdLineOption('u')]
-            public string WebApiUrl { get; set; } =
-                Environment.GetEnvironmentVariable("LATEX_SERVICE_WEB_API_URL") ?? "http://localhost/api/latex";
+            public string WebApiUrl { get; set; }
+
+            [CmdLineOption('c')]
+            public string TextColor { get; set; }
         }
 
         public static int Execute(Options options, CmdLineDefinition definition) {
+            Console.WriteLine("Service URL: " + options.WebApiUrl);
+            Console.WriteLine("Text color: " + options.TextColor);
+            Console.WriteLine();
+            Console.WriteLine("Please enter a snippet of LaTeX and finish with [Ctrl+Z][Enter].");
+
             using var theClient = new HttpClient();
 
             string theLaTeX = Console.In.ReadToEnd();
             var theRequest = new LaTeXServiceRequest {
                 LaTeX = theLaTeX,
-                TextColor = "FFFFFF",
+                TextColor = options.TextColor,
                 PageColor = "000000"
             };
 
-            string theJson = JsonSerializer.ToString(
+            string theJson = JsonSerializer.Serialize(
                 theRequest,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
             );

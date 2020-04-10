@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 
 using Epos.LaTeX.WebApi.Services;
 
@@ -36,7 +36,7 @@ namespace Epos.LaTeX.WebApi.Controllers
             try {
                 byte[] theBytes = WebEncoders.Base64UrlDecode(jsonBase64Url);
                 string theJson = Encoding.UTF8.GetString(theBytes);
-                LaTeXServiceRequest theRequest = JsonSerializer.Parse<LaTeXServiceRequest>(
+                LaTeXServiceRequest theRequest = JsonSerializer.Deserialize<LaTeXServiceRequest>(
                     theJson, new JsonSerializerOptions {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                     }
