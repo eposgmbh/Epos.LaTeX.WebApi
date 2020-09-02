@@ -3,7 +3,7 @@
   "profiles": {
     "Epos.LaTeX.WebApi": {
       "commandName": "Project",
-      "applicationUrl": "http://localhost:80",
+      "applicationUrl": "http://0.0.0.0:4050",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

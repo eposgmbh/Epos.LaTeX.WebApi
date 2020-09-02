@@ -4,12 +4,16 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
+using Epos.Utilities;
+
 using Microsoft.Extensions.Logging;
 
 namespace Epos.LaTeX.WebApi.Services
 {
     public class LaTeXService : ILaTeXService
     {
+        private readonly Cache<LaTeXServiceRequest, LaTeXServiceResponse> myCache;
+
         private static string WorkingDirectory => Path.Combine(Path.GetTempPath(), "Epos.LaTeX.WebApi");
         private const int PngDensity = 300;
 
@@ -17,6 +21,7 @@ namespace Epos.LaTeX.WebApi.Services
 
         public LaTeXService(ILogger<LaTeXService> logger) {
             myLogger = logger;
+            myCache = new Cache<LaTeXServiceRequest, LaTeXServiceResponse>(capacity: 100);
         }
 
         public LaTeXServiceResponse GetPng(LaTeXServiceRequest request) {
@@ -24,10 +29,16 @@ namespace Epos.LaTeX.WebApi.Services
                 throw new ArgumentNullException(nameof(request));
             }
 
-            myLogger.LogWarning($"LaTeX: {request.LaTeX}");
-            myLogger.LogWarning($"Text color: {request.TextColor}");
-            myLogger.LogWarning($"Page color: {request.PageColor}");
-            myLogger.LogWarning(string.Empty);
+            var theResponse = myCache[request];
+            if (theResponse != null) {
+                myLogger.LogInformation("Cache hit!");
+                return theResponse;
+            }
+
+            myLogger.LogInformation($"LaTeX: {request.LaTeX}");
+            myLogger.LogInformation($"Text color: {request.TextColor}");
+            myLogger.LogInformation($"Page color: {request.PageColor}");
+            myLogger.LogInformation(string.Empty);
 
             var theStopwatch = Stopwatch.StartNew();
 
@@ -54,8 +65,8 @@ namespace Epos.LaTeX.WebApi.Services
             theStreamReader.Close();
 
             string theContents = thePreamble + request.LaTeX.Trim() + Environment.NewLine + theEnd;
-            myLogger.LogWarning($"Input (pdflatex):{Environment.NewLine}{theContents}");
-            myLogger.LogWarning(string.Empty);
+            myLogger.LogInformation($"Input (pdflatex):{Environment.NewLine}{theContents}");
+            myLogger.LogInformation(string.Empty);
 
             File.WriteAllText(theLaTexFilename, theContents, Encoding.UTF8);
 
@@ -75,8 +86,8 @@ namespace Epos.LaTeX.WebApi.Services
             string theOutputString = thePdflatexProcess.StandardOutput.ReadToEnd();
             thePdflatexProcess.WaitForExit();
 
-            myLogger.LogWarning($"Output (pdflatex):{Environment.NewLine}{theOutputString}");
-            myLogger.LogWarning(string.Empty);
+            myLogger.LogInformation($"Output (pdflatex):{Environment.NewLine}{theOutputString}");
+            myLogger.LogInformation(string.Empty);
 
             int theFirstErrorIndex = theOutputString.IndexOf('!');
             string theErrorMessage;
@@ -105,11 +116,15 @@ namespace Epos.LaTeX.WebApi.Services
                     theConvertProcess.WaitForExit();
 
                     if (File.Exists(thePngFilename)) {
-                        return new LaTeXServiceResponse {
+                        theResponse = new LaTeXServiceResponse {
                             IsSuccessful = true,
                             PngImageData = File.ReadAllBytes(thePngFilename),
                             DurationMilliseconds = theStopwatch.ElapsedMilliseconds
                         };
+
+                        myCache[request] = theResponse;
+
+                        return theResponse;
                     }
 
                     theErrorMessage = "PNG file cannot be created.";
@@ -118,11 +133,15 @@ namespace Epos.LaTeX.WebApi.Services
                 }
             }
 
-            return new LaTeXServiceResponse {
+            theResponse = new LaTeXServiceResponse {
                 IsSuccessful = false,
                 ErrorMessage = theErrorMessage,
                 DurationMilliseconds = theStopwatch.ElapsedMilliseconds
             };
+
+            myCache[request] = theResponse;
+
+            return theResponse; 
         }
     }
 }

@@ -9,4 +9,4 @@ services:
       context: ../src/Epos.LaTeX.WebApi
       dockerfile: Dockerfile
     ports:
-      - 8000:80
+      - 80:80

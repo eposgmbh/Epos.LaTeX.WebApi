@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build-env
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
 
 # Copy sources
 WORKDIR /build
@@ -9,20 +9,19 @@ RUN dotnet publish --configuration Release --output dist
 
 # ---------------------------------------                          
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.0
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 
-RUN \
-    apt-get update && \
-    apt-get -y install texlive=2018.20190227-2 && \
-    apt-get -y install texlive-lang-german=2018.20190227-2 && \
-    apt-get -y install texlive-latex-extra=2018.20190227-2 && \
-    apt-get -y install texlive-fonts-extra=2018.20190227-2 && \
-    apt-get -y install imagemagick=8:6.9.10.23+dfsg-2.1
+RUN apt-get update && \
+    apt-get -y install texlive && \
+    apt-get -y install texlive-lang-german && \
+    apt-get -y install texlive-latex-extra && \
+    apt-get -y install texlive-fonts-extra && \
+    apt-get -y install imagemagick
 
 WORKDIR /svc
 COPY --from=build-env /build/dist ./
 
-EXPOSE 80
-ENV PORT=80
+# Enable PDF conversion
+COPY ./policy.xml /etc/ImageMagick-6
 
 ENTRYPOINT ["dotnet", "Epos.LaTeX.WebApi.dll"]

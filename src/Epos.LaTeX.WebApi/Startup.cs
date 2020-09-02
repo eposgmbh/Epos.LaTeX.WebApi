@@ -1,3 +1,5 @@
+using System;
+
 using Epos.LaTeX.WebApi.Services;
 
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +10,10 @@ namespace Epos.LaTeX.WebApi
     public class Startup
     {
         public void ConfigureServices(IServiceCollection services) {
+            if (Environment.GetEnvironmentVariable("LE") != null) {
+                services.AddLettuceEncrypt();
+            }
+
             services.AddMvc();
             services.AddControllers();
             services.AddResponseCaching();
