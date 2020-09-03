@@ -1,7 +1,7 @@
 using System;
-
+using System.IO;
 using Epos.LaTeX.WebApi.Services;
-
+using LettuceEncrypt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +11,9 @@ namespace Epos.LaTeX.WebApi
     {
         public void ConfigureServices(IServiceCollection services) {
             if (Environment.GetEnvironmentVariable("LE") != null) {
-                services.AddLettuceEncrypt();
+                services
+                    .AddLettuceEncrypt()
+                    .PersistDataToDirectory(new DirectoryInfo("/lettuce-encrypt"), pfxPassword: null);
             }
 
             services.AddMvc();
