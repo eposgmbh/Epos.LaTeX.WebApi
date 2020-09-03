@@ -2,6 +2,7 @@ using System;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Epos.LaTeX.WebApi
 {
@@ -10,6 +11,12 @@ namespace Epos.LaTeX.WebApi
         public static void Main(string[] args) =>
             Host
                 .CreateDefaultBuilder(args)
+                .ConfigureLogging(logging => {
+                    logging.ClearProviders();
+                    logging.AddConsole(configure => {
+                        configure.TimestampFormat = "[HH:mm:ss,fff K] ";
+                    });
+                })
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
 
