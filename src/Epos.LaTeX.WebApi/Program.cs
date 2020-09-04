@@ -14,7 +14,7 @@ namespace Epos.LaTeX.WebApi
                 .ConfigureLogging(logging => {
                     logging.ClearProviders();
                     logging.AddConsole(configure => {
-                        configure.TimestampFormat = "[HH:mm:ss,fff K] ";
+                        configure.TimestampFormat = "[MM-dd HH:mm:ss,fff K] ";
                     });
                 })
                 .ConfigureWebHostDefaults(webBuilder => {
