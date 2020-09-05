@@ -50,6 +50,10 @@ namespace Epos.LaTeX.WebApi.Controllers
 
                 return File(CreateImageFromMessage(theResponse.ErrorMessage), "image/png");
             } catch (Exception theException) {
+                if (!(theException is JsonException)) {
+                    myLogger.LogWarning(theException.ToString());
+                }
+                
                 return File(CreateImageFromMessage(theException.Message), "image/png");
             }
         }

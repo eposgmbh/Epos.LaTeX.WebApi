@@ -122,6 +122,15 @@ namespace Epos.LaTeX.WebApi.Services
                             DurationMilliseconds = theStopwatch.ElapsedMilliseconds
                         };
 
+                        try {
+                            Directory
+                                .GetFiles(
+                                    WorkingDirectory,
+                                    $"{Path.GetFileNameWithoutExtension(theLaTeXFilenameWithoutExtension)}.*"
+                                )
+                                .ForEach(filename => File.Delete(filename));
+                        } catch {}
+
                         myCache[request] = theResponse;
 
                         return theResponse;
@@ -138,6 +147,15 @@ namespace Epos.LaTeX.WebApi.Services
                 ErrorMessage = theErrorMessage,
                 DurationMilliseconds = theStopwatch.ElapsedMilliseconds
             };
+
+            try {
+                Directory
+                    .GetFiles(
+                        WorkingDirectory,
+                        $"{Path.GetFileNameWithoutExtension(theLaTeXFilenameWithoutExtension)}.*"
+                    )
+                    .ForEach(filename => File.Delete(filename));
+            } catch {}
 
             myCache[request] = theResponse;
 
