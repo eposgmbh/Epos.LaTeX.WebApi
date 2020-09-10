@@ -16,12 +16,13 @@ namespace Epos.LaTeX.WebApi.Services
 
         private static string WorkingDirectory => Path.Combine(Path.GetTempPath(), "Epos.LaTeX.WebApi");
         private const int PngDensity = 300;
+        private const int CacheCapacity = 300;
 
         private readonly ILogger<LaTeXService> myLogger;
 
         public LaTeXService(ILogger<LaTeXService> logger) {
             myLogger = logger;
-            myCache = new Cache<LaTeXServiceRequest, LaTeXServiceResponse>(capacity: 100);
+            myCache = new Cache<LaTeXServiceRequest, LaTeXServiceResponse>(capacity: CacheCapacity);
         }
 
         public LaTeXServiceResponse GetPng(LaTeXServiceRequest request) {
