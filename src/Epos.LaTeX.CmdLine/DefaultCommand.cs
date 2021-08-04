@@ -23,7 +23,7 @@ namespace Epos.LaTeX.CmdLine
                     LongName = "web-api-url",
                     DefaultValue =
                         Environment.GetEnvironmentVariable("LATEX_SERVICE_WEB_API_URL") ??
-                        "http://localhost:4050/api/latex"
+                        "http://localhost:5000/api/latex"
                 },
                 new CmdLineOption<string>(
                     'c', "Sets the text color."

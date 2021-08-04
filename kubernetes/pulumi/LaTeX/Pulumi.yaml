@@ -1,0 +1,3 @@
+name: latex
+runtime: dotnet
+description: LaTeX Service (latex.eposgmbh.info)

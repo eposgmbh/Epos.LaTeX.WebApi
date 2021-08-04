@@ -8,11 +8,12 @@
 
 ## Installation
 
-Pull the latest Docker image (Linux) and run it:
+Build the Docker image (Linux) and run it:
 
-```docker
-docker pull eposgmbh/latex-service:latest
-docker run --detach --rm --publish 80:80 --name latex-service eposgmbh/latex-service:latest
+```bash
+cd ./docker
+docker-compose -f docker-compose.yaml build
+docker run --detach --rm --publish 80:5000 --name latex-service ecr.eposgmbh.eu/latex-service:latest
 ```
 
 > **Hint:** The Web API can only be made to work on Linux, because it needs TeX Live and ImageMagick installed. The
@@ -20,7 +21,7 @@ docker run --detach --rm --publish 80:80 --name latex-service eposgmbh/latex-ser
 
 ## Usage
 
-Convert raw JSON to BASE64 (see https://www.base64encode.org/) and send a GET request to `http://[host]:80/api/latex/{BASE64}`.
+Convert raw JSON to BASE64 (see https://www.base64encode.org/) and send a GET request to `http://localhost/api/latex/{BASE64}`.
 
 ```javascript
 {
@@ -41,7 +42,7 @@ your issue when I have time. Pull Requests are possible too.
 
 MIT License
 
-Copyright (c) 2017 eposgmbh
+Copyright (c) 2021 eposgmbh
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

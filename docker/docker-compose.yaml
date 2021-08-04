@@ -2,11 +2,11 @@ version: "3"
 
 services:
 
-  epos-latex-webapi:
-    image: gcr.io/eposgmbh/latex-service:latest
+  latex-service:
+    image: ecr.eposgmbh.eu/latex-service:latest
     restart: always
     build:
       context: ../src/Epos.LaTeX.WebApi
       dockerfile: Dockerfile
     ports:
-      - 80:80
+      - 5000:5000

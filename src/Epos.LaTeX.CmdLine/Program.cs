@@ -6,7 +6,7 @@ namespace Epos.LaTeX.CmdLine
     {
         public static int Main(string[] args) {
             var theCmdLineDefinition = new CmdLineDefinition {
-                Name = "epos-auth",
+                Name = "epos-latex",
                 Subcommands = {
                     DefaultCommand.Instance,
                 },
