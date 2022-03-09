@@ -18,7 +18,7 @@ namespace LaTeX
 
         protected override ContainerArgs Container => new() {
             Name = Name,
-            Image = "ecr.eposgmbh.eu/latex-service:latest"
+            Image = "eposgmbh/latex-service:latest"
         };
     }
 }

@@ -3,7 +3,7 @@ version: "3"
 services:
 
   latex-service:
-    image: ecr.eposgmbh.eu/latex-service:latest
+    image: eposgmbh/latex-service:latest
     restart: always
     build:
       context: ../src/Epos.LaTeX.WebApi

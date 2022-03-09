@@ -57,7 +57,12 @@ namespace Epos.LaTeX.WebApi.Services
             theStreamReader.Close();
 
             thePreamble = thePreamble.Replace("##FONTCOLOR##", request.TextColor);
-            thePreamble = thePreamble.Replace("##PAGECOLOR##", request.PageColor);
+
+            string thePageColor =
+                request.PageColor == "transparent"
+                ? @"\nopagecolor"
+                : @"\definecolor{pagecolor}{HTML}{" + request.PageColor + "}";
+            thePreamble = thePreamble.Replace("##PAGECOLOR##", thePageColor);
 
             theStream = Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("Epos.LaTeX.WebApi.Resources.End.tex");

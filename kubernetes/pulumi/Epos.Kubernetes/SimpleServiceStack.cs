@@ -71,8 +71,7 @@ namespace Epos.Kubernetes
                             },
                             Spec = new PodSpecArgs {
                                 Containers = Container,
-                                Volumes = Volumes!,
-                                ImagePullSecrets = new LocalObjectReferenceArgs { Name = "ecr.eposgmbh.eu" }
+                                Volumes = Volumes!
                             }
                         }
                     }

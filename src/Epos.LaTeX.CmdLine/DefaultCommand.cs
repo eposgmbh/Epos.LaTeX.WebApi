@@ -52,11 +52,11 @@ namespace Epos.LaTeX.CmdLine
 
             using var theClient = new HttpClient();
 
-            string theLaTeX = Console.In.ReadToEnd();
+            string theLaTeX = Console.ReadLine();
             var theRequest = new LaTeXServiceRequest {
                 LaTeX = theLaTeX,
                 TextColor = options.TextColor,
-                PageColor = "000000"
+                PageColor = "transparent"
             };
 
             string theJson = JsonSerializer.Serialize(

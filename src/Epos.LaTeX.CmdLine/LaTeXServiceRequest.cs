@@ -6,6 +6,6 @@ namespace Epos.LaTeX.CmdLine
 
         public string TextColor { get; set; } = "000000";
 
-        public string PageColor { get; set; } = "FFFFFF";
+        public string PageColor { get; set; } = "transparent";
     }
 }
