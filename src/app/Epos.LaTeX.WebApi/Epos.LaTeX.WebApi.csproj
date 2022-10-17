@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
     <PackageReference Include="SixLabors.Shapes" Version="1.0.0-beta0008" />
     <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0008" />
-    <PackageReference Include="Epos.Utilities" Version="6.1.7" />
+    <PackageReference Include="Epos.Utilities" Version="6.3.11" />
   </ItemGroup>
   
 </Project>

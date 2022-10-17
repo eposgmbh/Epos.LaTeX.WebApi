@@ -6,7 +6,7 @@ services:
     image: eposgmbh/latex-service:latest
     restart: always
     build:
-      context: ../src/Epos.LaTeX.WebApi
+      context: ../src/app/Epos.LaTeX.WebApi
       dockerfile: Dockerfile
     ports:
       - 5000:5000

@@ -48,7 +48,7 @@ namespace Epos.LaTeX.CmdLine
             Console.WriteLine("Service URL: " + options.WebApiUrl);
             Console.WriteLine("Text color: " + options.TextColor);
             Console.WriteLine();
-            Console.WriteLine("Please enter a snippet of LaTeX and finish with [Ctrl+Z][Enter].");
+            Console.WriteLine("Please enter a snippet of LaTeX and finish with [Enter] ([Ctrl+Z] + [Enter] on Linux).");
 
             using var theClient = new HttpClient();
 
