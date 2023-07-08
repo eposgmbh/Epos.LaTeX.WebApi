@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Resources/**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Resources/**" />
   </ItemGroup>
 

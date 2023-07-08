@@ -8,164 +8,204 @@ using Epos.Utilities;
 
 using Microsoft.Extensions.Logging;
 
-namespace Epos.LaTeX.WebApi.Services
+namespace Epos.LaTeX.WebApi.Services;
+
+public class LaTeXService : ILaTeXService
 {
-    public class LaTeXService : ILaTeXService
-    {
-        private readonly Cache<LaTeXServiceRequest, LaTeXServiceResponse> myCache;
+    private const int PngDensity = 300;
+    private const int CacheCapacity = 300;
 
-        private static string WorkingDirectory => Path.Combine(Path.GetTempPath(), "Epos.LaTeX.WebApi");
-        private const int PngDensity = 300;
-        private const int CacheCapacity = 300;
+    private static readonly string Preamble = LoadResourceString("Epos.LaTeX.WebApi.Resources.Preamble.tex");
+    private static readonly string End = LoadResourceString("Epos.LaTeX.WebApi.Resources.End.tex");
 
-        private readonly ILogger<LaTeXService> myLogger;
+    private readonly ILogger<LaTeXService> myLogger;
+    private readonly Cache<LaTeXServiceRequest, LaTeXServiceResponse> myCache = new(capacity: CacheCapacity);
 
-        public LaTeXService(ILogger<LaTeXService> logger) {
-            myLogger = logger;
-            myCache = new Cache<LaTeXServiceRequest, LaTeXServiceResponse>(capacity: CacheCapacity);
+    public LaTeXService(ILogger<LaTeXService> logger) {
+        myLogger = logger;
+        myCache = new Cache<LaTeXServiceRequest, LaTeXServiceResponse>(capacity: CacheCapacity);
+    }
+
+    private static string WorkingDirectory => Path.Combine(Path.GetTempPath(), "Epos.LaTeX.WebApi");
+
+    public LaTeXServiceResponse GetArtifact(LaTeXServiceRequest request) {
+        if (request == null) {
+            throw new ArgumentNullException(nameof(request));
         }
 
-        public LaTeXServiceResponse GetPng(LaTeXServiceRequest request) {
-            if (request == null) {
-                throw new ArgumentNullException(nameof(request));
+        var theResponse = myCache[request];
+        if (theResponse is not null) {
+            myLogger.LogInformation($"Cache hit: {request}");
+            return theResponse;
+        }
+
+        theResponse = request.Pdf
+            ? GetPdfFile(request)
+            : GetPngFile(request);
+
+        myCache[request] = theResponse;
+
+        return theResponse;
+    }
+
+    private LaTeXServiceResponse GetPngFile(LaTeXServiceRequest request) {
+        LogRequestInformation(request);
+        EnsureWorkingDirectoryExists();
+
+        var thePdfFileResult = GetPdfFile(request);
+
+        if (!thePdfFileResult.IsSuccessful) {
+            return thePdfFileResult;
+        }
+
+        string thePdfFilePath = thePdfFileResult.PdfFilePath;
+        string theFilenameWithoutExtension = Path.GetFileNameWithoutExtension(thePdfFilePath);
+        string thePngFilePath = $"{Path.Combine(Path.GetDirectoryName(thePdfFilePath), theFilenameWithoutExtension)}.png";
+
+        string args = request.RawLaTeX
+            ? $"-density {PngDensity} -define colorspace:auto-grayscale=false -append {thePdfFilePath} {thePngFilePath}"
+            : $"-density {PngDensity} -define colorspace:auto-grayscale=false -chop 0x30 {thePdfFilePath} {thePngFilePath}";
+
+        using var theConvertProcess = new Process {
+            StartInfo = {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                FileName = "convert",
+                WorkingDirectory = WorkingDirectory,
+                Arguments = args
             }
+        };
+        theConvertProcess.Start();
+        theConvertProcess.WaitForExit();
 
-            var theResponse = myCache[request];
-            if (theResponse != null) {
-                myLogger.LogInformation("Cache hit!");
-                return theResponse;
-            }
-
-            myLogger.LogInformation($"LaTeX: {request.LaTeX}");
-            myLogger.LogInformation($"Text color: {request.TextColor}");
-            myLogger.LogInformation($"Page color: {request.PageColor}");
-            myLogger.LogInformation(string.Empty);
-
-            var theStopwatch = Stopwatch.StartNew();
-
-            if (!Directory.Exists(WorkingDirectory)) {
-                Directory.CreateDirectory(WorkingDirectory);
-            }
-
-            string theLaTeXFilenameWithoutExtension = $"{Path.Combine(WorkingDirectory, Guid.NewGuid().ToString("N"))}";
-            string theLaTexFilename = $"{theLaTeXFilenameWithoutExtension}.tex";
-
-            Stream theStream = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("Epos.LaTeX.WebApi.Resources.Preamble.tex");
-            var theStreamReader = new StreamReader(theStream);
-            string thePreamble = theStreamReader.ReadToEnd();
-            theStreamReader.Close();
-
-            thePreamble = thePreamble.Replace("##FONTCOLOR##", request.TextColor);
-
-            string thePageColor =
-                request.PageColor == "transparent"
-                ? @"\nopagecolor"
-                : @"\definecolor{pagecolor}{HTML}{" + request.PageColor + "}";
-            thePreamble = thePreamble.Replace("##PAGECOLOR##", thePageColor);
-
-            theStream = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("Epos.LaTeX.WebApi.Resources.End.tex");
-            theStreamReader = new StreamReader(theStream);
-            string theEnd = theStreamReader.ReadToEnd();
-            theStreamReader.Close();
-
-            string theContents = thePreamble + request.LaTeX.Trim() + Environment.NewLine + theEnd;
-            myLogger.LogInformation($"Input (pdflatex):{Environment.NewLine}{theContents}");
-            myLogger.LogInformation(string.Empty);
-
-            File.WriteAllText(theLaTexFilename, theContents, Encoding.UTF8);
-
-            using var thePdflatexProcess = new Process {
-                StartInfo = {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    StandardOutputEncoding = Encoding.UTF8,
-                    FileName = "pdflatex",
-                    WorkingDirectory = WorkingDirectory,
-                    Arguments = theLaTexFilename + " -no-c-style-errors -enable-installer -halt-on-error"
-                }
+        LaTeXServiceResponse theResponse;
+        if (File.Exists(thePngFilePath)) {
+            theResponse = new LaTeXServiceResponse {
+                IsSuccessful = true,
+                PngImageData = File.ReadAllBytes(thePngFilePath)
             };
-            thePdflatexProcess.Start();
+        } else {
+            theResponse = new LaTeXServiceResponse {
+                IsSuccessful = false,
+                ErrorMessage = "PNG file cannot be created.",
+            };
+        }
 
-            string theOutputString = thePdflatexProcess.StandardOutput.ReadToEnd();
-            thePdflatexProcess.WaitForExit();
+        DeleteFilesInsideWorkingDirectory(theFilenameWithoutExtension);
 
-            myLogger.LogInformation($"Output (pdflatex):{Environment.NewLine}{theOutputString}");
-            myLogger.LogInformation(string.Empty);
+        return theResponse;
+    }
 
-            int theFirstErrorIndex = theOutputString.IndexOf('!');
-            string theErrorMessage;
-            if (theFirstErrorIndex != -1) {
-                theErrorMessage = theOutputString.Substring(theFirstErrorIndex + 2);
-                theFirstErrorIndex = theErrorMessage.IndexOf('!');
-                theErrorMessage = theErrorMessage.Substring(0, theFirstErrorIndex);
-            } else {
-                string thePdfFilename = $"{theLaTeXFilenameWithoutExtension}.pdf";
-                string thePngFilename = $"{theLaTeXFilenameWithoutExtension}.png";
+    private LaTeXServiceResponse GetPdfFile(LaTeXServiceRequest request) {
+        LogRequestInformation(request);
+        EnsureWorkingDirectoryExists();
 
-                if (File.Exists(thePdfFilename)) {
-                    using var theConvertProcess = new Process {
-                        StartInfo = {
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                            RedirectStandardOutput = true,
-                            StandardOutputEncoding = Encoding.UTF8,
-                            FileName = "convert",
-                            WorkingDirectory = WorkingDirectory,
-                            Arguments =
-                                $"-density {PngDensity} -chop 0x30 {thePdfFilename} {thePngFilename}"
-                        }
-                    };
-                    theConvertProcess.Start();
-                    theConvertProcess.WaitForExit();
+        string theLaTeXDocument = GetLaTeXString(request);
 
-                    if (File.Exists(thePngFilename)) {
-                        theResponse = new LaTeXServiceResponse {
-                            IsSuccessful = true,
-                            PngImageData = File.ReadAllBytes(thePngFilename),
-                            DurationMilliseconds = theStopwatch.ElapsedMilliseconds
-                        };
+        string theLaTeXFilePathWithoutExtension = $"{Path.Combine(WorkingDirectory, Guid.NewGuid().ToString("N"))}";
+        string theLaTexFilePath = $"{theLaTeXFilePathWithoutExtension}.tex";
 
-                        try {
-                            Directory
-                                .GetFiles(
-                                    WorkingDirectory,
-                                    $"{Path.GetFileNameWithoutExtension(theLaTeXFilenameWithoutExtension)}.*"
-                                )
-                                .ForEach(filename => File.Delete(filename));
-                        } catch {}
+        File.WriteAllText(theLaTexFilePath, theLaTeXDocument, Encoding.UTF8);
 
-                        myCache[request] = theResponse;
-
-                        return theResponse;
-                    }
-
-                    theErrorMessage = "PNG file cannot be created.";
-                } else {
-                    theErrorMessage = "PDF file cannot be created.";
-                }
+        using var thePdflatexProcess = new Process {
+            StartInfo = {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                FileName = "pdflatex",
+                WorkingDirectory = WorkingDirectory,
+                Arguments = theLaTexFilePath + " -no-c-style-errors -enable-installer -halt-on-error"
             }
+        };
+        thePdflatexProcess.Start();
+
+        string theOutputString = thePdflatexProcess.StandardOutput.ReadToEnd();
+        thePdflatexProcess.WaitForExit();
+
+        myLogger.LogInformation($"Output (pdflatex):{Environment.NewLine}{theOutputString}");
+        myLogger.LogInformation(string.Empty);
+
+        LaTeXServiceResponse theResponse;
+
+        int theFirstErrorIndex = theOutputString.IndexOf('!');
+        if (theFirstErrorIndex != -1) {
+            string theErrorMessage = theOutputString.Substring(theFirstErrorIndex + 2);
+            theFirstErrorIndex = theErrorMessage.IndexOf('!');
+            theErrorMessage = theErrorMessage.Substring(0, theFirstErrorIndex);
 
             theResponse = new LaTeXServiceResponse {
                 IsSuccessful = false,
-                ErrorMessage = theErrorMessage,
-                DurationMilliseconds = theStopwatch.ElapsedMilliseconds
+                ErrorMessage = theErrorMessage
             };
+        } else {
+            string thePdfFilePath = $"{theLaTeXFilePathWithoutExtension}.pdf";
 
-            try {
-                Directory
-                    .GetFiles(
-                        WorkingDirectory,
-                        $"{Path.GetFileNameWithoutExtension(theLaTeXFilenameWithoutExtension)}.*"
-                    )
-                    .ForEach(filename => File.Delete(filename));
-            } catch {}
-
-            myCache[request] = theResponse;
-
-            return theResponse; 
+            if (File.Exists(thePdfFilePath)) {
+                theResponse = request.Pdf
+                    ? new LaTeXServiceResponse { IsSuccessful = true, PdfData = File.ReadAllBytes(thePdfFilePath) }
+                    : new LaTeXServiceResponse { IsSuccessful = true, PdfFilePath = thePdfFilePath };
+            } else {
+                theResponse = new LaTeXServiceResponse { IsSuccessful = false, ErrorMessage = "PDF file cannot be created." };
+            }
         }
+
+        if (request.Pdf) {
+            // If no PDF is requested, the pdf file is still needed to be converted to a PNG file,
+            // so we do not delete the files right now
+            DeleteFilesInsideWorkingDirectory(theLaTeXFilePathWithoutExtension);
+        }
+
+        return theResponse;
+    }
+
+    private static string GetLaTeXString(LaTeXServiceRequest request) {
+        if (request.RawLaTeX) {
+            return request.LaTeX;
+        }
+
+        string thePreamble = Preamble.Replace("##FONTCOLOR##", request.TextColor);
+        string thePageColor =
+            request.PageColor == "transparent"
+            ? @"\nopagecolor"
+            : @"\definecolor{pagecolor}{HTML}{" + request.PageColor + "}";
+        thePreamble = thePreamble.Replace("##PAGECOLOR##", thePageColor);
+
+        var theContents = new StringBuilder(thePreamble)
+            .AppendLine(request.LaTeX.Trim())
+            .Append(End);
+
+        return theContents.ToString();
+    }
+
+    private static string LoadResourceString(string resourceName) {
+        using Stream theStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+        using var theStreamReader = new StreamReader(theStream);
+        return theStreamReader.ReadToEnd();
+    }
+
+    private static void DeleteFilesInsideWorkingDirectory(string filenameWithoutExtension) {
+        try {
+            Directory
+                .GetFiles(WorkingDirectory, $"{filenameWithoutExtension}.*")
+                .ForEach(filename => File.Delete(filename));
+        } catch { }
+    }
+
+    private static void EnsureWorkingDirectoryExists() {
+        if (!Directory.Exists(WorkingDirectory)) {
+            Directory.CreateDirectory(WorkingDirectory);
+        }
+    }
+
+    private void LogRequestInformation(LaTeXServiceRequest request) {
+        myLogger.LogInformation($"LaTeX: {request.LaTeX}");
+        myLogger.LogInformation($"Text color: {request.TextColor}");
+        myLogger.LogInformation($"Page color: {request.PageColor}");
+        myLogger.LogInformation($"RawLaTeX: {request.RawLaTeX}");
+        myLogger.LogInformation($"Pdf: {request.Pdf}");
+        myLogger.LogInformation(string.Empty);
     }
 }

@@ -1,7 +1,6 @@
-namespace Epos.LaTeX.WebApi.Services
+namespace Epos.LaTeX.WebApi.Services;
+
+public interface ILaTeXService
 {
-    public interface ILaTeXService
-    {
-        LaTeXServiceResponse GetPng(LaTeXServiceRequest request);
-    }
+    LaTeXServiceResponse GetArtifact(LaTeXServiceRequest request);
 }

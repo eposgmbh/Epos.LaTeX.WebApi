@@ -13,7 +13,7 @@ Build the Docker image (Linux) and run it:
 ```bash
 cd ./docker
 docker-compose -f docker-compose.yaml build
-docker run --detach --rm --publish 80:5000 --name latex-service eposgmbh/latex-service:latest
+docker run --detach --rm --publish 5000:5000 --name latex-service eposgmbh/latex-service:latest
 ```
 
 > **Hint:** The Web API can only be made to work on Linux, because it needs TeX Live and ImageMagick installed. The
@@ -21,17 +21,18 @@ docker run --detach --rm --publish 80:5000 --name latex-service eposgmbh/latex-s
 
 ## Usage
 
-Convert raw JSON to BASE64 (see <https://www.base64encode.org/>) and send a GET request to `http://localhost/api/latex/{BASE64}`.
+Convert raw JSON to BASE64 (see <https://www.base64encode.org/>) and send a GET request to `http://localhost:5000/api/latex/{BASE64}`.
 
 ```javascript
 {
     "laTeX": "a^2 + b^2 = c^2",
     "textColor": "777777", // HTML "#"-Format
-    "pageColor": "111111"  // or "transparent" for a transparent background 
+    "pageColor": "111111",  // or "transparent" for a transparent background
+    "pdf": false // set to true to generate a PDF file
 }
 ```
 
-You get back a PNG image.
+You get back a PNG image (or a PDF document when "pdf" is true, see above).
 
 ## Contributing
 

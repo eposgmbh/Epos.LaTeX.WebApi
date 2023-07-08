@@ -9,14 +9,16 @@ RUN dotnet publish --configuration Release --output dist
 
 # ---------------------------------------                          
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS run-env
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy AS run-env
 
-RUN apt-get update && \
-    apt-get -y install texlive && \
-    apt-get -y install texlive-lang-german && \
-    apt-get -y install texlive-latex-extra && \
-    apt-get -y install texlive-fonts-extra && \
-    apt-get -y install imagemagick
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+RUN apt-get -y install texlive
+RUN apt-get -y install texlive-lang-german
+RUN apt-get -y install texlive-latex-extra
+RUN apt-get -y install texlive-fonts-extra
+RUN apt-get -y install imagemagick
 
 WORKDIR /svc
 COPY --from=build-env /build/dist ./
