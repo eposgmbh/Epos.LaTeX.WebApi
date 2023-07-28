@@ -8,7 +8,7 @@ public record LaTeXServiceRequest
 
     public string PageColor { get; set; } = "FFFFFF";
 
-    public bool RawLaTeX { get; set; }
+    public RenderMode RenderMode { get; set; } = RenderMode.MathModeFragment;
 
     public bool Pdf { get; set; }
 }

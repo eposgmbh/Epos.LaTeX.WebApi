@@ -62,7 +62,7 @@ public class LaTeXService : ILaTeXService
         string theFilenameWithoutExtension = Path.GetFileNameWithoutExtension(thePdfFilePath);
         string thePngFilePath = $"{Path.Combine(Path.GetDirectoryName(thePdfFilePath), theFilenameWithoutExtension)}.png";
 
-        string args = request.RawLaTeX
+        string args = request.RenderMode == RenderMode.Document
             ? $"-density {PngDensity} -define colorspace:auto-grayscale=false -append {thePdfFilePath} {thePngFilePath}"
             : $"-density {PngDensity} -define colorspace:auto-grayscale=false -chop 0x30 {thePdfFilePath} {thePngFilePath}";
 
@@ -162,22 +162,38 @@ public class LaTeXService : ILaTeXService
     }
 
     private static string GetLaTeXString(LaTeXServiceRequest request) {
-        if (request.RawLaTeX) {
-            return request.LaTeX;
-        }
+        if (request.RenderMode == RenderMode.Document) {
+            return ReplaceColors(request.LaTeX, request);
+        } else {
+            var theLaTeXString = new StringBuilder(ReplaceColors(Preamble, request));
 
-        string thePreamble = Preamble.Replace("##FONTCOLOR##", request.TextColor);
+            if (request.RenderMode == RenderMode.MathModeFragment) {
+                theLaTeXString.AppendLine(@"\begin{align*}");
+            }
+
+            theLaTeXString.AppendLine(request.LaTeX.Trim());
+
+            if (request.RenderMode == RenderMode.MathModeFragment) {
+                theLaTeXString.AppendLine(@"\end{align*}");
+            }
+
+            theLaTeXString.Append(End);
+
+            return theLaTeXString.ToString();
+        }
+    }
+
+    private static string ReplaceColors(string contents, LaTeXServiceRequest request) {
+        contents = contents.Replace("##FONTCOLOR##", request.TextColor);
+        
         string thePageColor =
             request.PageColor == "transparent"
             ? @"\nopagecolor"
             : @"\definecolor{pagecolor}{HTML}{" + request.PageColor + "}";
-        thePreamble = thePreamble.Replace("##PAGECOLOR##", thePageColor);
+        
+        contents = contents.Replace("##PAGECOLOR##", thePageColor);
 
-        var theContents = new StringBuilder(thePreamble)
-            .AppendLine(request.LaTeX.Trim())
-            .Append(End);
-
-        return theContents.ToString();
+        return contents;
     }
 
     private static string LoadResourceString(string resourceName) {
@@ -204,7 +220,7 @@ public class LaTeXService : ILaTeXService
         myLogger.LogInformation($"LaTeX: {request.LaTeX}");
         myLogger.LogInformation($"Text color: {request.TextColor}");
         myLogger.LogInformation($"Page color: {request.PageColor}");
-        myLogger.LogInformation($"RawLaTeX: {request.RawLaTeX}");
+        myLogger.LogInformation($"RenderMode: {request.RenderMode}");
         myLogger.LogInformation($"Pdf: {request.Pdf}");
         myLogger.LogInformation(string.Empty);
     }
