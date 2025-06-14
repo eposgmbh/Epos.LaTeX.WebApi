@@ -9,7 +9,7 @@ public class LaTeXService : SimpleStatelessService
     public override Container Container => new(Name, "eposgmbh/latex-service:latest");
 
     public override IngressOptions? IngressOptions => new() {
-        Host = "latex.eposgmbh.info",
+        Host = "latex.eposgmbh.eu",
         UseLetsEncrypt = true
     };
 }
